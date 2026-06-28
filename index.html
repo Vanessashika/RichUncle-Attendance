@@ -18,170 +18,32 @@
     --font-body: "Inter", -apple-system, sans-serif;
     --font-mono: "JetBrains Mono", monospace;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    min-height: 100%;
-    background: var(--paper);
-    color: var(--ink);
-    font-family: var(--font-body);
-  }
-
-  body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
-
-  .card {
-    width: 100%;
-    max-width: 420px;
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 32px 28px;
-    box-shadow: 0 1px 2px rgba(28,42,36,0.04), 0 12px 32px rgba(28,42,36,0.06);
-  }
-
-  .eyebrow {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--moss);
-    margin-bottom: 6px;
-  }
-
-  h1 {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 28px;
-    line-height: 1.15;
-    color: var(--moss-deep);
-    margin-bottom: 4px;
-  }
-
-  .sub {
-    font-size: 14px;
-    color: #6b6358;
-    margin-bottom: 28px;
-  }
-
-  label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--moss-deep);
-    margin-bottom: 8px;
-  }
-
-  input[type="text"] {
-    width: 100%;
-    padding: 14px 16px;
-    font-size: 16px;
-    font-family: var(--font-body);
-    border: 1.5px solid var(--line);
-    border-radius: 10px;
-    background: var(--paper);
-    color: var(--ink);
-    transition: border-color 0.15s ease;
-  }
-
-  input[type="text"]:focus {
-    outline: none;
-    border-color: var(--moss);
-  }
-
-  .status-box {
-    margin-top: 18px;
-    padding: 14px 16px;
-    border-radius: 10px;
-    font-size: 13.5px;
-    line-height: 1.5;
-    display: none;
-    border: 1px solid var(--line);
-  }
-
+  html, body { min-height: 100%; background: var(--paper); color: var(--ink); font-family: var(--font-body); }
+  body { display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .card { width: 100%; max-width: 420px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 32px 28px; box-shadow: 0 1px 2px rgba(28,42,36,0.04), 0 12px 32px rgba(28,42,36,0.06); }
+  .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--moss); margin-bottom: 6px; }
+  h1 { font-family: var(--font-display); font-weight: 600; font-size: 28px; line-height: 1.15; color: var(--moss-deep); margin-bottom: 4px; }
+  .sub { font-size: 14px; color: #6b6358; margin-bottom: 28px; }
+  label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--moss-deep); margin-bottom: 8px; }
+  input[type="text"] { width: 100%; padding: 14px 16px; font-size: 16px; font-family: var(--font-body); border: 1.5px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); transition: border-color 0.15s ease; }
+  input[type="text"]:focus { outline: none; border-color: var(--moss); }
+  .status-box { margin-top: 18px; padding: 14px 16px; border-radius: 10px; font-size: 13.5px; line-height: 1.5; display: none; border: 1px solid var(--line); }
   .status-box.show { display: block; }
-
-  .status-box.loading {
-    background: #f1efe8;
-    color: #6b6358;
-  }
-
-  .status-box.ok {
-    background: #eaf2ec;
-    border-color: #c4dccb;
-    color: var(--moss-deep);
-  }
-
-  .status-box.warn {
-    background: #fbeee6;
-    border-color: #ecc8b4;
-    color: var(--warn);
-  }
-
-  .status-box .dist {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    opacity: 0.75;
-    margin-top: 4px;
-    display: block;
-  }
-
-  button {
-    width: 100%;
-    margin-top: 24px;
-    padding: 16px;
-    font-family: var(--font-body);
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    color: #fff;
-    background: var(--moss);
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.15s ease, transform 0.05s ease;
-  }
-
+  .status-box.loading { background: #f1efe8; color: #6b6358; }
+  .status-box.ok { background: #eaf2ec; border-color: #c4dccb; color: var(--moss-deep); }
+  .status-box.warn { background: #fbeee6; border-color: #ecc8b4; color: var(--warn); }
+  .status-box .dist { font-family: var(--font-mono); font-size: 12px; opacity: 0.75; margin-top: 4px; display: block; }
+  button { width: 100%; margin-top: 24px; padding: 16px; font-family: var(--font-body); font-size: 15px; font-weight: 600; letter-spacing: 0.01em; color: #fff; background: var(--moss); border: none; border-radius: 10px; cursor: pointer; transition: background 0.15s ease, transform 0.05s ease; }
   button:hover:not(:disabled) { background: var(--moss-deep); }
   button:active:not(:disabled) { transform: scale(0.99); }
-
-  button:disabled {
-    background: #c9c4b8;
-    cursor: not-allowed;
-  }
-
-  .footer-note {
-    margin-top: 20px;
-    font-size: 11.5px;
-    color: #a39c8e;
-    text-align: center;
-    line-height: 1.5;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 13px;
-    height: 13px;
-    border: 2px solid #d9d3c4;
-    border-top-color: var(--moss);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-
+  button:disabled { background: #c9c4b8; cursor: not-allowed; }
+  .footer-note { margin-top: 20px; font-size: 11.5px; color: #a39c8e; text-align: center; line-height: 1.5; }
+  .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid #d9d3c4; border-top-color: var(--moss); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
-
   <div class="card">
     <div class="eyebrow">Richuncle · Attendance</div>
     <h1>Mark attendance</h1>
@@ -203,31 +65,29 @@
   </div>
 
 <script>
-  // ====== CONFIGURE THIS ======
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxuZ1dKHUxnQ-S6p--yWtahKnVxefTUAWhZmTO0YLX-EFDJ6SMaHgbVC16q6yMBsL54/exec";
-  // =============================
+  // Google Form config
+  const FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLScAyktBszmRu4dYwLx2klMBq1SwFzxflIB2DOyk5jCxjPKgCQ/formResponse";
+  const ENTRY_NAME  = "entry.797253315";
+
+  // Office locations
+  const LOCATIONS = [
+    { name: "Shop A", lat: 5.548706, lng: -0.207453 },
+    { name: "Shop B", lat: 5.550745, lng: -0.205991 }
+  ];
+  const ALLOWED_RADIUS_M = 100;
 
   const locStatus = document.getElementById('locStatus');
   const submitBtn = document.getElementById('submitBtn');
   const nameInput = document.getElementById('name');
 
   let currentCoords = null;
-  let withinRange = false;
-
-  // Mirror of the office locations / radius for instant client-side feedback.
-  // (Server re-validates this independently — this is just for UX.)
-  const LOCATIONS = [
-    { name: "Shop A", lat: 5.548706, lng: -0.207453 },
-    { name: "Shop B", lat: 5.54972, lng: -0.20761 }
-  ];
-  const ALLOWED_RADIUS_M = 100;
+  let withinRange   = false;
+  let nearestShop   = null;
 
   function haversine(lat1, lon1, lat2, lon2) {
-    const R = 6371000;
-    const toRad = d => d * Math.PI / 180;
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+    const R = 6371000, r = d => d * Math.PI / 180;
+    const dLat = r(lat2-lat1), dLon = r(lon2-lon1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(r(lat1))*Math.cos(r(lat2))*Math.sin(dLon/2)**2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   }
 
@@ -237,96 +97,73 @@
   }
 
   function updateButton() {
-    if (!currentCoords) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Checking location…";
-      return;
-    }
-    if (!withinRange) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Out of range — cannot check in";
-      return;
-    }
+    if (!currentCoords) { submitBtn.disabled = true; submitBtn.textContent = "Checking location…"; return; }
+    if (!withinRange)   { submitBtn.disabled = true; submitBtn.textContent = "Out of range — cannot check in"; return; }
     submitBtn.disabled = false;
     submitBtn.textContent = "Mark attendance";
   }
 
-  function checkLocation() {
-    if (!navigator.geolocation) {
-      setStatus('warn', "Your browser doesn't support location access. Please use a modern mobile browser.");
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      currentCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      let best = null;
+      for (const loc of LOCATIONS) {
+        const d = Math.round(haversine(loc.lat, loc.lng, currentCoords.lat, currentCoords.lng));
+        if (!best || d < best.dist) best = { name: loc.name, dist: d };
+      }
+      nearestShop = best;
+      withinRange = best.dist <= ALLOWED_RADIUS_M;
+      if (withinRange) {
+        setStatus('ok', `You're at ${best.name}.<span class="dist">Distance: ${best.dist}m (limit ${ALLOWED_RADIUS_M}m)</span>`);
+      } else {
+        setStatus('warn', `You're too far from any shop.<span class="dist">Closest: ${best.name}, ${best.dist}m away (limit ${ALLOWED_RADIUS_M}m)</span>`);
+      }
       updateButton();
-      return;
-    }
+    },
+    err => {
+      let msg = "Couldn't get your location. ";
+      if (err.code === 1) msg += "Please allow location access and reload.";
+      else if (err.code === 2) msg += "GPS unavailable — make sure location is on.";
+      else msg += "Please try again.";
+      setStatus('warn', msg);
+      updateButton();
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        currentCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-
-        let best = null;
-        for (const loc of LOCATIONS) {
-          const d = Math.round(haversine(loc.lat, loc.lng, currentCoords.lat, currentCoords.lng));
-          if (best === null || d < best.dist) best = { name: loc.name, dist: d };
-        }
-        withinRange = best.dist <= ALLOWED_RADIUS_M;
-
-        if (withinRange) {
-          setStatus('ok', `You're at ${best.name}.<span class="dist">Distance: ${best.dist}m (limit ${ALLOWED_RADIUS_M}m)</span>`);
-        } else {
-          setStatus('warn', `You're too far from any shop to check in.<span class="dist">Closest: ${best.name}, ${best.dist}m (limit ${ALLOWED_RADIUS_M}m)</span>`);
-        }
-        updateButton();
-      },
-      (err) => {
-        let msg = "Couldn't get your location. ";
-        if (err.code === 1) msg += "Please allow location access and reload this page.";
-        else if (err.code === 2) msg += "Location unavailable — make sure GPS is on.";
-        else msg += "Please try again.";
-        setStatus('warn', msg);
-        updateButton();
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
-  }
-
-  submitBtn.addEventListener('click', async () => {
+  submitBtn.addEventListener('click', () => {
     const name = nameInput.value.trim();
-    if (!name) {
-      nameInput.focus();
-      nameInput.style.borderColor = '#b3441e';
-      return;
-    }
+    if (!name) { nameInput.focus(); nameInput.style.borderColor = '#b3441e'; return; }
     if (!currentCoords || !withinRange) return;
 
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner"></span>Submitting…';
 
-    try {
-      await fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          name: name,
-          lat: currentCoords.lat,
-          lng: currentCoords.lng,
-          device: navigator.userAgent
-        })
-      });
+    // Submit to Google Forms via hidden iframe (avoids CORS issues)
+    const form = document.createElement('form');
+    form.method  = 'POST';
+    form.action  = FORM_ACTION;
+    form.target  = 'hidden_iframe';
 
-      // no-cors returns an opaque response (can't read it), but if we get here without
-      // an exception the request was sent successfully — the server validates location.
-      setStatus('ok', `✓ Attendance marked for ${name}.<span class="dist">Distance: ~${Math.round(haversine(LOCATIONS[0].lat, LOCATIONS[0].lng, currentCoords.lat, currentCoords.lng))}m from nearest shop</span>`);
+    const nameField = document.createElement('input');
+    nameField.type  = 'hidden';
+    nameField.name  = ENTRY_NAME;
+    nameField.value = name;
+    form.appendChild(nameField);
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+
+    setTimeout(() => {
+      setStatus('ok', `✓ Attendance marked for ${name} at ${nearestShop.name}.`);
       submitBtn.textContent = "Checked in ✓";
       submitBtn.disabled = true;
-    } catch (err) {
-      setStatus('warn', "Network error — please check your connection and try again.");
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Try again";
-    }
+    }, 1500);
   });
-
-  checkLocation();
 </script>
 
+<!-- Hidden iframe to absorb Google Forms redirect -->
+<iframe name="hidden_iframe" style="display:none"></iframe>
 </body>
 </html>
