@@ -6,38 +6,42 @@
 <title>Richuncle Attendance</title>
 <style>
   :root {
-    --ink: #1c2a24;
-    --paper: #f6f3ec;
-    --moss: #2f5d3a;
-    --moss-deep: #1f3f27;
-    --clay: #c46b3e;
-    --line: #d9d3c4;
-    --ok: #2f5d3a;
-    --warn: #b3441e;
+    --ink: #1c2a24; --paper: #f6f3ec; --moss: #2f5d3a; --moss-deep: #1f3f27; --clay: #c46b3e;
+    --line: #d9d3c4; --warn: #b3441e;
     --font-display: "Fraunces", Georgia, serif;
     --font-body: "Inter", -apple-system, sans-serif;
     --font-mono: "JetBrains Mono", monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { min-height: 100%; background: var(--paper); color: var(--ink); font-family: var(--font-body); }
-  body { display: flex; align-items: center; justify-content: center; padding: 24px; }
-  .card { width: 100%; max-width: 420px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 32px 28px; box-shadow: 0 1px 2px rgba(28,42,36,0.04), 0 12px 32px rgba(28,42,36,0.06); }
+  body { display: flex; align-items: center; justify-content: center; padding: 24px; padding-top: max(24px, env(safe-area-inset-top)); padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+  .card { width: 100%; max-width: 420px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 30px 26px; box-shadow: 0 1px 2px rgba(28,42,36,0.04), 0 12px 32px rgba(28,42,36,0.06); }
   .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--moss); margin-bottom: 6px; }
   h1 { font-family: var(--font-display); font-weight: 600; font-size: 28px; line-height: 1.15; color: var(--moss-deep); margin-bottom: 4px; }
-  .sub { font-size: 14px; color: #6b6358; margin-bottom: 28px; }
-  label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--moss-deep); margin-bottom: 8px; }
-  input[type="text"] { width: 100%; padding: 14px 16px; font-size: 16px; font-family: var(--font-body); border: 1.5px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); transition: border-color 0.15s ease; }
-  input[type="text"]:focus { outline: none; border-color: var(--moss); }
-  .status-box { margin-top: 18px; padding: 14px 16px; border-radius: 10px; font-size: 13.5px; line-height: 1.5; display: none; border: 1px solid var(--line); }
-  .status-box.show { display: block; }
-  .status-box.loading { background: #f1efe8; color: #6b6358; }
+  .clock { font-family: var(--font-mono); font-size: 13px; color: #6b6358; margin: 6px 0 22px; }
+  .clock strong { color: var(--moss-deep); font-size: 22px; margin-right: 8px; }
+  label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--moss-deep); margin: 16px 0 8px; }
+  select, input { width: 100%; padding: 14px 16px; font-size: 16px; font-family: var(--font-body); border: 1.5px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); appearance: none; }
+  input.pin { font-family: var(--font-mono); letter-spacing: 0.5em; font-size: 22px; text-align: center; }
+  select:focus, input:focus { outline: none; border-color: var(--moss); }
+  .status-box { margin-top: 18px; padding: 14px 16px; border-radius: 10px; font-size: 14px; line-height: 1.5; border: 1px solid var(--line); background: #f1efe8; color: #6b6358; }
   .status-box.ok { background: #eaf2ec; border-color: #c4dccb; color: var(--moss-deep); }
   .status-box.warn { background: #fbeee6; border-color: #ecc8b4; color: var(--warn); }
-  .status-box .dist { font-family: var(--font-mono); font-size: 12px; opacity: 0.75; margin-top: 4px; display: block; }
-  button { width: 100%; margin-top: 24px; padding: 16px; font-family: var(--font-body); font-size: 15px; font-weight: 600; letter-spacing: 0.01em; color: #fff; background: var(--moss); border: none; border-radius: 10px; cursor: pointer; transition: background 0.15s ease, transform 0.05s ease; }
-  button:hover:not(:disabled) { background: var(--moss-deep); }
-  button:active:not(:disabled) { transform: scale(0.99); }
-  button:disabled { background: #c9c4b8; cursor: not-allowed; }
+  .status-box .small { font-family: var(--font-mono); font-size: 12px; opacity: 0.75; margin-top: 4px; display: block; }
+  .result { margin-top: 16px; padding: 18px 16px; border-radius: 10px; display: none; }
+  .result.show { display: block; }
+  .result.ok { background: var(--moss-deep); color: #fff; }
+  .result.err { background: #fbeee6; border: 1px solid #ecc8b4; color: var(--warn); }
+  .result .big { font-family: var(--font-display); font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+  button { width: 100%; padding: 16px 10px; font-family: var(--font-body); font-size: 15px; font-weight: 600; color: #fff; background: var(--moss); border: 2px solid var(--moss); border-radius: 10px; cursor: pointer; }
+  button.out { background: #fff; color: var(--moss-deep); }
+  button:disabled { background: #c9c4b8; border-color: #c9c4b8; color: #fff; cursor: not-allowed; }
+  button:focus-visible, select:focus-visible, input:focus-visible, .link:focus-visible { outline: 3px solid var(--clay); outline-offset: 2px; }
+  .link { background: none; border: 0; color: var(--moss); font-size: 13px; font-weight: 600; text-decoration: underline; padding: 0; width: auto; margin-top: 18px; }
+  #pinPanel { display: none; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 4px; }
+  #pinPanel.show { display: block; }
+  #pinPanel button { margin-top: 16px; }
   .footer-note { margin-top: 20px; font-size: 11.5px; color: #a39c8e; text-align: center; line-height: 1.5; }
   .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid #d9d3c4; border-top-color: var(--moss); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -46,124 +50,143 @@
 <body>
   <div class="card">
     <div class="eyebrow">Richuncle · Attendance</div>
-    <h1>Mark attendance</h1>
-    <p class="sub">Confirm your location, enter your name, and check in.</p>
+    <h1>Clock in &amp; out</h1>
+    <p class="clock"><strong id="now">--:--</strong><span id="shiftMsg"></span></p>
 
     <label for="name">Your name</label>
-    <input type="text" id="name" placeholder="e.g. Ama Owusu" autocomplete="name" />
+    <select id="name"><option value="">Loading staff list…</option></select>
 
-    <div id="locStatus" class="status-box loading show">
-      <span class="spinner"></span>Checking your location…
+    <label for="pin">Your PIN</label>
+    <input id="pin" class="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="••••" />
+
+    <div id="locStatus" class="status-box"><span class="spinner"></span>Checking your location…</div>
+
+    <div class="actions">
+      <button id="inBtn" disabled>Clock in</button>
+      <button id="outBtn" class="out" disabled>Clock out</button>
     </div>
 
-    <button id="submitBtn" disabled>Checking location…</button>
+    <div id="result" class="result" role="status" aria-live="polite"></div>
 
-    <p class="footer-note">
-      Location access is required to confirm you're on-site.<br/>
-      If prompted, tap "Allow" to share your location.
-    </p>
+    <button class="link" id="pinToggle">Change my PIN</button>
+    <div id="pinPanel">
+      <label for="oldPin">Current PIN</label>
+      <input id="oldPin" class="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" />
+      <label for="newPin">New PIN (4–6 digits)</label>
+      <input id="newPin" class="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" />
+      <label for="newPin2">Repeat new PIN</label>
+      <input id="newPin2" class="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" />
+      <button id="pinSave">Save new PIN</button>
+    </div>
+
+    <p class="footer-note">Your time is recorded by the server, not your phone.<br/>Location must be on to clock in or out.</p>
   </div>
 
 <script>
-  // Google Form config
-  const FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLScAyktBszmRu4dYwLx2klMBq1SwFzxflIB2DOyk5jCxjPKgCQ/formResponse";
-  const ENTRY_NAME  = "entry.797253315";
+  // ============================================================
+  //  PASTE YOUR APPS SCRIPT WEB APP URL HERE (ends in /exec)
+  // ============================================================
+  const API_URL = "https://script.google.com/macros/s/AKfycbznT3R0Ua2bSxxySkOq7GTgyHpCY_DFZa5R6SJCWEcO0Sb7HuHYAlvhUj0j5M1UAFid/exec";
 
-  // Office locations
-  const LOCATIONS = [
-    { name: "Shop A", lat: 5.550861, lng: -0.206056 },
-    { name: "Shop B", lat: 5.549861, lng: -0.207639 }
-  ];
-  const ALLOWED_RADIUS_M = 100;
+  const $ = id => document.getElementById(id);
+  const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+  let cfg = null, coords = null, nearest = null, busy = false;
+  let deviceId = store.get('ru_device');
+  if (!deviceId) { deviceId = Math.random().toString(36).slice(2, 10); store.set('ru_device', deviceId); }
 
-  const locStatus = document.getElementById('locStatus');
-  const submitBtn = document.getElementById('submitBtn');
-  const nameInput = document.getElementById('name');
+  const pad = n => String(n).padStart(2, '0');
+  const toMin = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+  function tick() {
+    const d = new Date(); $('now').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    if (!cfg) return;
+    const m = d.getHours() * 60 + d.getMinutes(), s = toMin(cfg.start), e = toMin(cfg.end);
+    $('shiftMsg').textContent = m < s ? `Shift starts ${cfg.start}` : m <= s + cfg.grace ? (m === s ? 'On time' : 'Grace period') : m < e ? `Shift ends ${cfg.end}` : 'After closing time';
+  }
+  setInterval(tick, 15000); tick();
 
-  let currentCoords = null;
-  let withinRange   = false;
-  let nearestShop   = null;
+  function setLoc(type, html) { const b = $('locStatus'); b.className = 'status-box ' + type; b.innerHTML = html; }
+  function showResult(ok, big, text) { const r = $('result'); r.className = 'result show ' + (ok ? 'ok' : 'err'); r.innerHTML = `<div class="big">${big}</div>${text || ''}`; }
+  function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+  function updateButtons() {
+    const ready = cfg && coords && nearest && nearest.dist <= cfg.radius && !busy;
+    $('inBtn').disabled = $('outBtn').disabled = !ready;
+  }
+
+  async function loadConfig() {
+    try {
+      const r = await fetch(API_URL + '?api=config');
+      cfg = await r.json();
+      if (!cfg.ok) throw new Error();
+      const sel = $('name');
+      sel.innerHTML = '<option value="">Select your name…</option>' + cfg.staff.map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');
+      const saved = store.get('ru_staff');
+      if (saved && cfg.staff.some(s => s.id === saved)) sel.value = saved;
+      tick(); locate();
+    } catch (e) {
+      $('name').innerHTML = '<option value="">Could not load staff list</option>';
+      setLoc('warn', 'Could not reach the attendance system. Check your internet and reload the page.');
+    }
+  }
 
   function haversine(lat1, lon1, lat2, lon2) {
-    const R = 6371000, r = d => d * Math.PI / 180;
-    const dLat = r(lat2-lat1), dLon = r(lon2-lon1);
-    const a = Math.sin(dLat/2)**2 + Math.cos(r(lat1))*Math.cos(r(lat2))*Math.sin(dLon/2)**2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const R = 6371000, r = d => d * Math.PI / 180, dLat = r(lat2 - lat1), dLon = r(lon2 - lon1);
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(r(lat1)) * Math.cos(r(lat2)) * Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+  function locate() {
+    setLoc('', '<span class="spinner"></span>Checking your location…');
+    navigator.geolocation.getCurrentPosition(pos => {
+      coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      nearest = null;
+      cfg.shops.forEach(s => { const d = Math.round(haversine(s.lat, s.lng, coords.lat, coords.lng)); if (!nearest || d < nearest.dist) nearest = { name: s.name, dist: d }; });
+      if (nearest && nearest.dist <= cfg.radius) setLoc('ok', `You're at ${esc(nearest.name)}.<span class="small">${nearest.dist}m away (limit ${cfg.radius}m)</span>`);
+      else if (nearest) setLoc('warn', `You're too far from any shop.<span class="small">Closest: ${esc(nearest.name)}, ${nearest.dist}m (limit ${cfg.radius}m)</span>`);
+      updateButtons();
+    }, err => {
+      setLoc('warn', err.code === 1 ? 'Location is blocked. Allow location for this page in your browser settings, then reload.' : 'Could not get your location. Make sure location is on and reload.');
+      updateButtons();
+    }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
   }
 
-  function setStatus(type, html) {
-    locStatus.className = 'status-box show ' + type;
-    locStatus.innerHTML = html;
+  async function post(body) {
+    const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(body) });
+    return r.json();
   }
 
-  function updateButton() {
-    if (!currentCoords) { submitBtn.disabled = true; submitBtn.textContent = "Checking location…"; return; }
-    if (!withinRange)   { submitBtn.disabled = true; submitBtn.textContent = "Out of range — cannot check in"; return; }
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Mark attendance";
+  async function clock(type) {
+    const staffId = $('name').value, pin = $('pin').value.trim();
+    if (!staffId) { showResult(false, 'Select your name'); $('name').focus(); return; }
+    if (!/^\d{4,6}$/.test(pin)) { showResult(false, 'Enter your PIN'); $('pin').focus(); return; }
+    busy = true; updateButtons();
+    const btn = type === 'IN' ? $('inBtn') : $('outBtn'); const label = btn.textContent;
+    btn.innerHTML = '<span class="spinner"></span>Sending…';
+    try {
+      const res = await post({ action: 'clock', type, staffId, pin, lat: coords.lat, lng: coords.lng, device: deviceId });
+      if (res.ok) {
+        store.set('ru_staff', staffId); $('pin').value = '';
+        showResult(true, `${type === 'IN' ? 'Clocked in' : 'Clocked out'} · ${esc(res.time)}`, esc(res.message));
+      } else showResult(false, 'Not recorded', esc(res.error));
+    } catch (e) { showResult(false, 'Not recorded', 'No connection to the attendance system. Try again.'); }
+    busy = false; btn.textContent = label; updateButtons();
   }
+  $('inBtn').addEventListener('click', () => clock('IN'));
+  $('outBtn').addEventListener('click', () => clock('OUT'));
 
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      currentCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      let best = null;
-      for (const loc of LOCATIONS) {
-        const d = Math.round(haversine(loc.lat, loc.lng, currentCoords.lat, currentCoords.lng));
-        if (!best || d < best.dist) best = { name: loc.name, dist: d };
-      }
-      nearestShop = best;
-      withinRange = best.dist <= ALLOWED_RADIUS_M;
-      if (withinRange) {
-        setStatus('ok', `You're at ${best.name}.<span class="dist">Distance: ${best.dist}m (limit ${ALLOWED_RADIUS_M}m)</span>`);
-      } else {
-        setStatus('warn', `You're too far from any shop.<span class="dist">Closest: ${best.name}, ${best.dist}m away (limit ${ALLOWED_RADIUS_M}m)</span>`);
-      }
-      updateButton();
-    },
-    err => {
-      let msg = "Couldn't get your location. ";
-      if (err.code === 1) msg += "Please allow location access and reload.";
-      else if (err.code === 2) msg += "GPS unavailable — make sure location is on.";
-      else msg += "Please try again.";
-      setStatus('warn', msg);
-      updateButton();
-    },
-    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-  );
-
-  submitBtn.addEventListener('click', () => {
-    const name = nameInput.value.trim();
-    if (!name) { nameInput.focus(); nameInput.style.borderColor = '#b3441e'; return; }
-    if (!currentCoords || !withinRange) return;
-
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner"></span>Submitting…';
-
-    // Submit to Google Forms via hidden iframe (avoids CORS issues)
-    const form = document.createElement('form');
-    form.method  = 'POST';
-    form.action  = FORM_ACTION;
-    form.target  = 'hidden_iframe';
-
-    const nameField = document.createElement('input');
-    nameField.type  = 'hidden';
-    nameField.name  = ENTRY_NAME;
-    nameField.value = name;
-    form.appendChild(nameField);
-
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
-
-    setTimeout(() => {
-      setStatus('ok', `✓ Attendance marked for ${name} at ${nearestShop.name}.`);
-      submitBtn.textContent = "Checked in ✓";
-      submitBtn.disabled = true;
-    }, 1500);
+  $('pinToggle').addEventListener('click', () => $('pinPanel').classList.toggle('show'));
+  $('pinSave').addEventListener('click', async () => {
+    const staffId = $('name').value, o = $('oldPin').value, n = $('newPin').value, n2 = $('newPin2').value;
+    if (!staffId) return showResult(false, 'Select your name first');
+    if (!/^\d{4,6}$/.test(n)) return showResult(false, 'New PIN must be 4–6 digits');
+    if (n !== n2) return showResult(false, 'The new PINs do not match');
+    try {
+      const res = await post({ action: 'changePin', staffId, oldPin: o, newPin: n });
+      if (res.ok) { showResult(true, 'PIN changed'); ['oldPin', 'newPin', 'newPin2'].forEach(i => $(i).value = ''); $('pinPanel').classList.remove('show'); }
+      else showResult(false, 'PIN not changed', esc(res.error));
+    } catch (e) { showResult(false, 'PIN not changed', 'No connection. Try again.'); }
   });
-</script>
 
-<!-- Hidden iframe to absorb Google Forms redirect -->
-<iframe name="hidden_iframe" style="display:none"></iframe>
+  loadConfig();
+</script>
 </body>
 </html>
