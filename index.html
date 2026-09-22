@@ -42,6 +42,35 @@
   #pinPanel { display: none; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 4px; }
   #pinPanel.show { display: block; }
   #pinPanel button { margin-top: 16px; }
+  .links { display: flex; flex-wrap: wrap; gap: 18px; }
+  #slipPanel { display: none; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 4px; }
+  #slipPanel.show { display: block; }
+  #slipPanel > button { margin-top: 14px; }
+  .slip { margin-top: 18px; border: 2px solid var(--ink); border-radius: 10px; padding: 18px 16px; color: var(--ink); background: #fff; }
+  .slip .top { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--ink); padding-bottom: 8px; margin-bottom: 10px; }
+  .slip .biz { font-weight: 800; letter-spacing: .06em; font-size: 15px; }
+  .slip .mo { font-size: 12px; color: #6b6358; }
+  .slip .who { font-weight: 700; font-size: 16px; }
+  .slip .sub { font-size: 12px; color: #6b6358; margin-bottom: 10px; }
+  .slip table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  .slip td { padding: 7px 0; border-bottom: 1px solid #e6e1d6; vertical-align: top; }
+  .slip td:last-child { text-align: right; white-space: nowrap; padding-left: 10px; }
+  .slip td small { display: block; color: #8a8273; font-size: 11.5px; }
+  .slip .minus { color: #b3441e; } .slip .plus { color: var(--moss); }
+  .slip .net td { border-top: 2px solid var(--ink); border-bottom: 0; font-weight: 800; font-size: 16px; padding-top: 10px; }
+  .slip .foot { font-size: 11px; color: #8a8273; margin-top: 12px; line-height: 1.5; }
+  .slip .sign { margin-top: 26px; font-size: 12px; display: none; }
+  #printBtn { margin-top: 12px; }
+  @media print {
+    body { background: #fff; padding: 0; display: block; }
+    .card { border: 0; box-shadow: none; padding: 0; max-width: none; }
+    .card > *:not(#slipPanel) { display: none !important; }
+    #slipPanel { display: block !important; border: 0; }
+    #slipPanel > *:not(#slipOut) { display: none !important; }
+    #printBtn { display: none !important; }
+    .slip { border-radius: 0; max-width: 560px; margin: 0 auto; }
+    .slip .sign { display: block; }
+  }
   .footer-note { margin-top: 20px; font-size: 11.5px; color: #a39c8e; text-align: center; line-height: 1.5; }
   .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid #d9d3c4; border-top-color: var(--moss); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -68,7 +97,14 @@
 
     <div id="result" class="result" role="status" aria-live="polite"></div>
 
-    <button class="link" id="pinToggle">Change my PIN</button>
+    <div class="links"><button class="link" id="slipToggle">My payslip</button><button class="link" id="pinToggle">Change my PIN</button></div>
+    <div id="slipPanel">
+      <label for="slipMonth">Month</label>
+      <select id="slipMonth"><option value="">No payslips available yet</option></select>
+      <button id="slipBtn">View my payslip</button>
+      <p class="device-note" style="font-size:12px;color:#8a8273;margin-top:8px">Uses the name and PIN entered above. Location is not needed.</p>
+      <div id="slipOut"></div>
+    </div>
     <div id="pinPanel">
       <label for="oldPin">Current PIN</label>
       <input id="oldPin" class="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" />
@@ -86,7 +122,7 @@
   // ============================================================
   //  PASTE YOUR APPS SCRIPT WEB APP URL HERE (ends in /exec)
   // ============================================================
-  const API_URL = "https://script.google.com/macros/s/AKfycbyprLtSeK8MN3irH9SRUvWNkqmJLCn0mKbrozuxXNR9jaNvny32LXvcTPdTDUH7kASH/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbznT3R0Ua2bSxxySkOq7GTgyHpCY_DFZa5R6SJCWEcO0Sb7HuHYAlvhUj0j5M1UAFid/exec";
 
   const $ = id => document.getElementById(id);
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
@@ -120,6 +156,9 @@
       if (!cfg.ok) throw new Error();
       const sel = $('name');
       sel.innerHTML = '<option value="">Select your name…</option>' + cfg.staff.map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');
+      const months = cfg.payslipMonths || [];
+      const mName = ym => { const [y, m] = ym.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }); };
+      if (months.length) $('slipMonth').innerHTML = months.map(m => `<option value="${m}">${mName(m)}</option>`).join('');
       const saved = store.get('ru_staff');
       if (saved && cfg.staff.some(s => s.id === saved)) sel.value = saved;
       tick(); locate();
@@ -173,7 +212,47 @@
   $('inBtn').addEventListener('click', () => clock('IN'));
   $('outBtn').addEventListener('click', () => clock('OUT'));
 
-  $('pinToggle').addEventListener('click', () => $('pinPanel').classList.toggle('show'));
+  $('pinToggle').addEventListener('click', () => { $('pinPanel').classList.toggle('show'); $('slipPanel').classList.remove('show'); });
+  $('slipToggle').addEventListener('click', () => { $('slipPanel').classList.toggle('show'); $('pinPanel').classList.remove('show'); });
+
+  const money = n => 'GHS ' + Number(n || 0).toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  $('slipBtn').addEventListener('click', async () => {
+    const staffId = $('name').value, pin = $('pin').value.trim(), month = $('slipMonth').value;
+    const out = $('slipOut');
+    if (!staffId) { out.innerHTML = '<div class="result show err"><div class="big">Select your name</div></div>'; return; }
+    if (!/^\d{4,6}$/.test(pin)) { out.innerHTML = '<div class="result show err"><div class="big">Enter your PIN above</div></div>'; $('pin').focus(); return; }
+    if (!month) { out.innerHTML = '<div class="result show err"><div class="big">No payslips yet</div>Payslips appear here once management finalises the month.</div>'; return; }
+    const btn = $('slipBtn'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Loading…';
+    try {
+      const r = await post({ action: 'payslip', staffId, pin, month });
+      if (!r.ok) { out.innerHTML = `<div class="result show err"><div class="big">No payslip</div>${esc(r.error)}</div>`; }
+      else {
+        $('pin').value = '';
+        const R = r.rules;
+        out.innerHTML = `<div class="slip">
+          <div class="top"><span class="biz">${esc(String(r.business).toUpperCase())}</span><span class="mo">Payslip · ${esc(r.month)}</span></div>
+          <div class="who">${esc(r.name)}</div>
+          <div class="sub">${esc(r.id)}${r.role ? ' · ' + esc(r.role) : ''}${r.bank ? ' · Paid to ' + esc(r.bank) + ' ' + esc(r.account) : ''}</div>
+          <table>
+            <tr><td>Basic salary</td><td>${money(r.salary)}</td></tr>
+            <tr><td>Days present<small>${r.grace ? r.grace + ' arrival' + (r.grace > 1 ? 's' : '') + ' within the ' + R.grace + '-minute grace period, no deduction' : 'Shift ' + esc(R.start) + '–' + esc(R.end)}</small></td><td>${r.present} of ${r.workingDays}</td></tr>
+            <tr><td>Late arrivals: ${r.late}<small>${r.late ? 'Days: ' + esc(r.lateDates) + ' · ' + R.lateHours + ' h at ' + money(r.hourly) + ' each' : 'None, well done'}</small></td><td class="${r.lateDed ? 'minus' : ''}">${r.lateDed ? '− ' + money(r.lateDed) : '–'}</td></tr>
+            ${R.deductAbsences ? `<tr><td>Unexcused absences: ${r.missed}</td><td class="${r.absDed ? 'minus' : ''}">${r.absDed ? '− ' + money(r.absDed) : '–'}</td></tr>` : ''}
+            <tr><td>Overtime: ${r.otHours} h<small>${r.otHours ? 'Days: ' + esc(r.otDays) + ' · at ' + R.otMult + '× ' + money(r.hourly) : 'No approved overtime'}</small></td><td class="${r.otPay ? 'plus' : ''}">${r.otPay ? '+ ' + money(r.otPay) : '–'}</td></tr>
+            ${R.ssnit || R.paye ? `<tr><td>Gross pay</td><td>${money(r.gross)}</td></tr>` : ''}
+            ${R.ssnit ? `<tr><td>SSNIT<small>${R.ssnitRate}% of basic salary, paid to your pension</small></td><td class="minus">− ${money(r.ssnit)}</td></tr>` : ''}
+            ${R.paye ? `<tr><td>PAYE income tax</td><td class="${r.paye ? 'minus' : ''}">${r.paye ? '− ' + money(r.paye) : '–'}</td></tr>` : ''}
+            <tr class="net"><td>Net pay</td><td>${money(r.net)}</td></tr>
+          </table>
+          <div class="foot">${R.ssnit || R.paye ? '' : 'SSNIT and PAYE not deducted. '}Finalised ${esc(r.finalisedOn)}. Questions about this payslip go to HR.</div>
+          <div class="sign">Received by: ______________________ &nbsp; Date: ____________</div>
+        </div>
+        <button id="printBtn">Print or save as PDF</button>`;
+        $('printBtn').addEventListener('click', () => window.print());
+      }
+    } catch (e) { out.innerHTML = '<div class="result show err"><div class="big">Could not load payslip</div>No connection. Try again.</div>'; }
+    btn.disabled = false; btn.textContent = 'View my payslip';
+  });
   $('pinSave').addEventListener('click', async () => {
     const staffId = $('name').value, o = $('oldPin').value, n = $('newPin').value, n2 = $('newPin2').value;
     if (!staffId) return showResult(false, 'Select your name first');
