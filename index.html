@@ -122,7 +122,7 @@
   // ============================================================
   //  PASTE YOUR APPS SCRIPT WEB APP URL HERE (ends in /exec)
   // ============================================================
-  const API_URL = "https://script.google.com/macros/s/AKfycbyprLtSeK8MN3irH9SRUvWNkqmJLCn0mKbrozuxXNR9jaNvny32LXvcTPdTDUH7kASH/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbznT3R0Ua2bSxxySkOq7GTgyHpCY_DFZa5R6SJCWEcO0Sb7HuHYAlvhUj0j5M1UAFid/exec";
 
   const $ = id => document.getElementById(id);
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
@@ -235,10 +235,12 @@
           <div class="sub">${esc(r.id)}${r.role ? ' · ' + esc(r.role) : ''}${r.bank ? ' · Paid to ' + esc(r.bank) + ' ' + esc(r.account) : ''}</div>
           <table>
             <tr><td>Basic salary</td><td>${money(r.salary)}</td></tr>
+            ${R.fullPay ? `<tr><td colspan="2" style="text-align:left;color:#6b6358">Full salary paid. Attendance was not applied this month.</td></tr>` : `
             <tr><td>Days present<small>${r.grace ? r.grace + ' arrival' + (r.grace > 1 ? 's' : '') + ' within the ' + R.grace + '-minute grace period, no deduction' : 'Shift ' + esc(R.start) + '–' + esc(R.end)}</small></td><td>${r.present} of ${r.workingDays}</td></tr>
             <tr><td>Late arrivals: ${r.late}<small>${r.late ? 'Days: ' + esc(r.lateDates) + ' · ' + R.lateHours + ' h at ' + money(r.hourly) + ' each' : 'None, well done'}</small></td><td class="${r.lateDed ? 'minus' : ''}">${r.lateDed ? '− ' + money(r.lateDed) : '–'}</td></tr>
             ${R.deductAbsences ? `<tr><td>Unexcused absences: ${r.missed}</td><td class="${r.absDed ? 'minus' : ''}">${r.absDed ? '− ' + money(r.absDed) : '–'}</td></tr>` : ''}
             <tr><td>Overtime: ${r.otHours} h<small>${r.otHours ? 'Days: ' + esc(r.otDays) + ' · at ' + R.otMult + '× ' + money(r.hourly) : 'No approved overtime'}</small></td><td class="${r.otPay ? 'plus' : ''}">${r.otPay ? '+ ' + money(r.otPay) : '–'}</td></tr>
+            `}
             ${R.ssnit || R.paye ? `<tr><td>Gross pay</td><td>${money(r.gross)}</td></tr>` : ''}
             ${R.ssnit ? `<tr><td>SSNIT<small>${R.ssnitRate}% of basic salary, paid to your pension</small></td><td class="minus">− ${money(r.ssnit)}</td></tr>` : ''}
             ${R.paye ? `<tr><td>PAYE income tax</td><td class="${r.paye ? 'minus' : ''}">${r.paye ? '− ' + money(r.paye) : '–'}</td></tr>` : ''}
