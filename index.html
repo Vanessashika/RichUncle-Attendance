@@ -43,6 +43,18 @@
   #pinPanel.show { display: block; }
   #pinPanel button { margin-top: 16px; }
   .links { display: flex; flex-wrap: wrap; gap: 18px; }
+  .panel { display: none; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 4px; }
+  .panel.show { display: block; }
+  .panel > button { margin-top: 14px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .two > div { min-width: 0; }
+  .two input { padding: 12px 8px; font-size: 15px; min-width: 0; }
+  textarea { width: 100%; padding: 12px 14px; font-size: 16px; font-family: var(--font-body); border: 1.5px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); resize: vertical; }
+  textarea:focus { outline: none; border-color: var(--moss); }
+  .sched { margin-top: 14px; font-size: 14px; line-height: 1.6; }
+  .sched h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--moss-deep); margin: 12px 0 4px; }
+  .sched .st { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; border: 1px solid currentColor; margin-left: 4px; }
+  .sched .Approved { color: var(--moss); } .sched .Declined { color: var(--warn); } .sched .Pending { color: #8a6d1f; }
   #slipPanel { display: none; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 4px; }
   #slipPanel.show { display: block; }
   #slipPanel > button { margin-top: 14px; }
@@ -97,7 +109,21 @@
 
     <div id="result" class="result" role="status" aria-live="polite"></div>
 
-    <div class="links"><button class="link" id="slipToggle">My payslip</button><button class="link" id="pinToggle">Change my PIN</button></div>
+    <div class="links"><button class="link" id="slipToggle">My payslip</button><button class="link" id="leaveToggle">Leave &amp; days off</button><button class="link" id="pinToggle">Change my PIN</button></div>
+    <div id="leavePanel" class="panel">
+      <label for="lvType">Type of leave</label>
+      <select id="lvType"><option>Annual leave</option><option>Sick leave</option><option>Unpaid leave</option></select>
+      <div class="two">
+        <div><label for="lvFrom">First day</label><input type="date" id="lvFrom" /></div>
+        <div><label for="lvTo">Last day</label><input type="date" id="lvTo" /></div>
+      </div>
+      <label for="lvReason">Reason</label>
+      <textarea id="lvReason" rows="3" maxlength="500" placeholder="e.g. Family funeral in Kumasi"></textarea>
+      <button id="lvSend">Send leave request</button>
+      <button id="lvMine" class="out" style="margin-top:10px">Show my days off &amp; requests</button>
+      <p style="font-size:12px;color:#8a8273;margin-top:8px">Uses the name and PIN entered above. Location is not needed.</p>
+      <div id="lvOut"></div>
+    </div>
     <div id="slipPanel">
       <label for="slipMonth">Month</label>
       <select id="slipMonth"><option value="">No payslips available yet</option></select>
@@ -159,6 +185,7 @@
       const months = cfg.payslipMonths || [];
       const mName = ym => { const [y, m] = ym.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }); };
       if (months.length) $('slipMonth').innerHTML = months.map(m => `<option value="${m}">${mName(m)}</option>`).join('');
+      if (cfg.leaveTypes) $('lvType').innerHTML = cfg.leaveTypes.map(t => `<option>${esc(t)}</option>`).join('');
       const saved = store.get('ru_staff');
       if (saved && cfg.staff.some(s => s.id === saved)) sel.value = saved;
       tick(); locate();
@@ -212,8 +239,47 @@
   $('inBtn').addEventListener('click', () => clock('IN'));
   $('outBtn').addEventListener('click', () => clock('OUT'));
 
-  $('pinToggle').addEventListener('click', () => { $('pinPanel').classList.toggle('show'); $('slipPanel').classList.remove('show'); });
-  $('slipToggle').addEventListener('click', () => { $('slipPanel').classList.toggle('show'); $('pinPanel').classList.remove('show'); });
+  const panels = { pinToggle: 'pinPanel', slipToggle: 'slipPanel', leaveToggle: 'leavePanel' };
+  Object.keys(panels).forEach(btn => $(btn).addEventListener('click', () => {
+    Object.keys(panels).forEach(b => { if (b !== btn) $(panels[b]).classList.remove('show'); });
+    $(panels[btn]).classList.toggle('show');
+  }));
+
+  // ---- leave ----
+  function needAuth(out) {
+    const staffId = $('name').value, pin = $('pin').value.trim();
+    if (!staffId) { out.innerHTML = '<div class="result show err"><div class="big">Select your name above</div></div>'; return null; }
+    if (!/^\d{4,6}$/.test(pin)) { out.innerHTML = '<div class="result show err"><div class="big">Enter your PIN above</div></div>'; $('pin').focus(); return null; }
+    return { staffId, pin };
+  }
+  $('lvFrom').addEventListener('change', () => { if (!$('lvTo').value || $('lvTo').value < $('lvFrom').value) $('lvTo').value = $('lvFrom').value; });
+  $('lvSend').addEventListener('click', async () => {
+    const out = $('lvOut'), a = needAuth(out); if (!a) return;
+    const body = { action: 'leave', ...a, type: $('lvType').value, from: $('lvFrom').value, to: $('lvTo').value, reason: $('lvReason').value.trim() };
+    if (!body.from || !body.to) { out.innerHTML = '<div class="result show err"><div class="big">Choose your dates</div></div>'; return; }
+    if (!body.reason) { out.innerHTML = '<div class="result show err"><div class="big">Add a short reason</div></div>'; $('lvReason').focus(); return; }
+    const btn = $('lvSend'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Sending…';
+    try {
+      const r = await post(body);
+      if (r.ok) { out.innerHTML = `<div class="result show ok"><div class="big">Request sent</div>${esc(r.message)}</div>`; $('lvReason').value = ''; $('pin').value = ''; }
+      else out.innerHTML = `<div class="result show err"><div class="big">Not sent</div>${esc(r.error)}</div>`;
+    } catch (e) { out.innerHTML = '<div class="result show err"><div class="big">Not sent</div>No connection. Try again.</div>'; }
+    btn.disabled = false; btn.textContent = 'Send leave request';
+  });
+  $('lvMine').addEventListener('click', async () => {
+    const out = $('lvOut'), a = needAuth(out); if (!a) return;
+    const btn = $('lvMine'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Loading…';
+    try {
+      const r = await post({ action: 'schedule', ...a });
+      if (!r.ok) out.innerHTML = `<div class="result show err"><div class="big">Could not load</div>${esc(r.error)}</div>`;
+      else {
+        $('pin').value = '';
+        out.innerHTML = `<div class="sched"><h4>My next days off</h4>${r.daysOff.length ? r.daysOff.map(d => `<div>${esc(d)}</div>`).join('') : '<div>None scheduled yet.</div>'}
+          <h4>My leave requests</h4>${r.leave.length ? r.leave.map(l => `<div>${esc(l.type)}: ${esc(l.from)}${l.from === l.to ? '' : ' – ' + esc(l.to)} (${l.days} day${l.days > 1 ? 's' : ''})<span class="st ${esc(l.status)}">${esc(l.status)}</span>${l.note ? `<br><span style="color:#8a8273;font-size:12.5px">${esc(l.note)}</span>` : ''}</div>`).join('') : '<div>No recent requests.</div>'}</div>`;
+      }
+    } catch (e) { out.innerHTML = '<div class="result show err"><div class="big">Could not load</div>No connection. Try again.</div>'; }
+    btn.disabled = false; btn.textContent = 'Show my days off & requests';
+  });
 
   const money = n => 'GHS ' + Number(n || 0).toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   $('slipBtn').addEventListener('click', async () => {
@@ -239,8 +305,11 @@
             <tr><td>Days present<small>${r.grace ? r.grace + ' arrival' + (r.grace > 1 ? 's' : '') + ' within the ' + R.grace + '-minute grace period, no deduction' : 'Shift ' + esc(R.start) + '–' + esc(R.end)}</small></td><td>${r.present} of ${r.workingDays}</td></tr>
             <tr><td>Late arrivals: ${r.late}<small>${r.late ? 'Days: ' + esc(r.lateDates) + ' · ' + R.lateHours + ' h at ' + money(r.hourly) + ' each' : 'None, well done'}</small></td><td class="${r.lateDed ? 'minus' : ''}">${r.lateDed ? '− ' + money(r.lateDed) : '–'}</td></tr>
             ${R.deductAbsences ? `<tr><td>Unexcused absences: ${r.missed}</td><td class="${r.absDed ? 'minus' : ''}">${r.absDed ? '− ' + money(r.absDed) : '–'}</td></tr>` : ''}
+            ${r.dayOffs || r.paidLeave ? `<tr><td>Paid days off<small>${r.dayOffs} rota day(s) off, ${r.paidLeave} day(s) of paid leave</small></td><td>–</td></tr>` : ''}
             <tr><td>Overtime: ${r.otHours} h<small>${r.otHours ? 'Days: ' + esc(r.otDays) + ' · at ' + R.otMult + '× ' + money(r.hourly) : 'No approved overtime'}</small></td><td class="${r.otPay ? 'plus' : ''}">${r.otPay ? '+ ' + money(r.otPay) : '–'}</td></tr>
             `}
+            ${r.unpaidLeave ? `<tr><td>Unpaid leave: ${r.unpaidLeave} day(s)</td><td class="minus">− ${money(r.unpaidDed)}</td></tr>` : ''}
+            ${r.manualDays ? `<tr><td>Days deducted: ${r.manualDays}${r.manualReason ? `<small>${esc(r.manualReason)}</small>` : ''}</td><td class="minus">− ${money(r.manualDed)}</td></tr>` : ''}
             ${R.ssnit || R.paye ? `<tr><td>Gross pay</td><td>${money(r.gross)}</td></tr>` : ''}
             ${R.ssnit ? `<tr><td>SSNIT<small>${R.ssnitRate}% of basic salary, paid to your pension</small></td><td class="minus">− ${money(r.ssnit)}</td></tr>` : ''}
             ${R.paye ? `<tr><td>PAYE income tax</td><td class="${r.paye ? 'minus' : ''}">${r.paye ? '− ' + money(r.paye) : '–'}</td></tr>` : ''}
