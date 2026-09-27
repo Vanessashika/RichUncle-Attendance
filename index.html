@@ -42,7 +42,8 @@
   #pinPanel { display: none; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 4px; }
   #pinPanel.show { display: block; }
   #pinPanel button { margin-top: 16px; }
-  .links { display: flex; flex-wrap: wrap; gap: 18px; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 18px; }
+  .links .link { margin-top: 0; }
   .panel { display: none; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 4px; }
   .panel.show { display: block; }
   .panel > button { margin-top: 14px; }
@@ -51,6 +52,20 @@
   .two input { padding: 12px 8px; font-size: 15px; min-width: 0; }
   textarea { width: 100%; padding: 12px 14px; font-size: 16px; font-family: var(--font-body); border: 1.5px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); resize: vertical; }
   textarea:focus { outline: none; border-color: var(--moss); }
+  .pt-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0 8px; }
+  .pt-cards div { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .pt-cards b { display: block; font-size: 18px; color: var(--moss-deep); font-variant-numeric: tabular-nums; }
+  .pt-cards span { font-size: 11.5px; color: #6b6358; }
+  .pt-cards .big { grid-column: 1 / -1; background: var(--moss-deep); border-color: var(--moss-deep); }
+  .pt-cards .big b { color: #fff; font-size: 24px; } .pt-cards .big span { color: #d7e3da; }
+  .pt-days { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; margin-top: 6px; }
+  .pt-days th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: #8a8273; padding: 6px 4px; border-bottom: 1.5px solid var(--ink); }
+  .pt-days td { padding: 7px 4px; border-bottom: 1px solid #ece7dc; vertical-align: top; }
+  .pt-days td:last-child, .pt-days th:last-child { text-align: right; }
+  .pt-days small { display: block; color: #8a8273; font-size: 11px; }
+  .pt-days .today td { background: #f3f7f1; }
+  .pill { font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; border: 1px solid currentColor; white-space: nowrap; }
+  .p-late { color: var(--warn); } .p-grace { color: #8a6d1f; } .p-ok { color: var(--moss); } .p-off { color: #5a6b8a; } .p-abs { color: #8a8273; }
   .sched { margin-top: 14px; font-size: 14px; line-height: 1.6; }
   .sched h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--moss-deep); margin: 12px 0 4px; }
   .sched .st { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; border: 1px solid currentColor; margin-left: 4px; }
@@ -109,7 +124,35 @@
 
     <div id="result" class="result" role="status" aria-live="polite"></div>
 
-    <div class="links"><button class="link" id="slipToggle">My payslip</button><button class="link" id="leaveToggle">Leave &amp; days off</button><button class="link" id="pinToggle">Change my PIN</button></div>
+    <div class="links"><button class="link" id="portalToggle">My portal</button><button class="link" id="slipToggle">My payslip</button><button class="link" id="leaveToggle">Leave &amp; days off</button><button class="link" id="detailsToggle">My details</button><button class="link" id="pinToggle">Change my PIN</button></div>
+    <div id="portalPanel" class="panel">
+      <button id="ptOpen">Show my attendance &amp; earnings</button>
+      <p style="font-size:12px;color:#8a8273;margin-top:8px">Uses the name and PIN entered above.</p>
+      <div id="ptOut"></div>
+    </div>
+    <div id="detailsPanel" class="panel">
+      <button id="dtLoad">Load my details</button>
+      <p style="font-size:12px;color:#8a8273;margin-top:8px">Uses the name and PIN entered above. Details already on file are filled in for you.</p>
+      <div id="dtForm" style="display:none">
+        <label for="dtCard">Ghana Card number</label>
+        <input id="dtCard" type="text" autocomplete="off" placeholder="GHA-123456789-0" />
+        <label for="dtEmName">Emergency contact name</label>
+        <input id="dtEmName" type="text" autocomplete="off" />
+        <div class="two">
+          <div><label for="dtEmRel">Relationship</label><input id="dtEmRel" type="text" autocomplete="off" placeholder="e.g. Mother" /></div>
+          <div><label for="dtEmPhone">Their phone</label><input id="dtEmPhone" type="tel" autocomplete="off" placeholder="024 000 0000" /></div>
+        </div>
+        <label for="dtAcct">Bank account number</label>
+        <input id="dtAcct" type="text" inputmode="numeric" autocomplete="off" />
+        <div class="two">
+          <div><label for="dtSort">Sort code</label><input id="dtSort" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 digits" /></div>
+          <div><label for="dtBank">Bank &amp; branch</label><input id="dtBank" type="text" autocomplete="off" placeholder="e.g. GCB (Madina)" /></div>
+        </div>
+        <p id="dtPending" style="font-size:12.5px;color:#8a6d1f;margin-top:8px"></p>
+        <button id="dtSave" style="margin-top:14px">Save my details</button>
+      </div>
+      <div id="dtOut"></div>
+    </div>
     <div id="leavePanel" class="panel">
       <label for="lvType">Type of leave</label>
       <select id="lvType"><option>Annual leave</option><option>Sick leave</option><option>Unpaid leave</option></select>
@@ -239,11 +282,76 @@
   $('inBtn').addEventListener('click', () => clock('IN'));
   $('outBtn').addEventListener('click', () => clock('OUT'));
 
-  const panels = { pinToggle: 'pinPanel', slipToggle: 'slipPanel', leaveToggle: 'leavePanel' };
+  const panels = { pinToggle: 'pinPanel', slipToggle: 'slipPanel', leaveToggle: 'leavePanel', portalToggle: 'portalPanel', detailsToggle: 'detailsPanel' };
   Object.keys(panels).forEach(btn => $(btn).addEventListener('click', () => {
     Object.keys(panels).forEach(b => { if (b !== btn) $(panels[b]).classList.remove('show'); });
     $(panels[btn]).classList.toggle('show');
   }));
+
+  // ---- portal ----
+  const pillClass = st => /late/i.test(st) ? 'p-late' : /grace/i.test(st) ? 'p-grace' : /on time|present/i.test(st) ? 'p-ok' : /day off|leave/i.test(st) ? 'p-off' : 'p-abs';
+  async function openPortal(month) {
+    const out = $('ptOut'), a = needAuth(out); if (!a) return;
+    const btn = $('ptOpen'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Loading…';
+    try {
+      const r = await post({ action: 'portal', ...a, month: month || '' });
+      if (!r.ok) { out.innerHTML = `<div class="result show err"><div class="big">Could not open</div>${esc(r.error)}</div>`; }
+      else {
+        const S = r.summary;
+        out.innerHTML = `
+          <label for="ptMonth">Month</label>
+          <select id="ptMonth">${r.months.map(m => `<option value="${m.ym}" ${m.ym === r.ym ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>
+          <div class="pt-cards">
+            <div class="big"><b>${money(r.earnedSoFar)}</b><span>Earned so far in ${esc(r.month)}${r.fixed ? ' (fixed salary)' : ''}</span></div>
+            <div><b>${money(r.daily)}</b><span>A working day (${r.workingDays} days this month)</span></div>
+            <div><b>${money(r.hourly)}</b><span>An hour (${esc(r.rules.start)}–${esc(r.rules.end)})</span></div>
+            <div><b>${S.present}</b><span>Days clocked in</span></div>
+            <div><b>${r.fixed || r.fullPay ? '–' : S.late}</b><span>Late (after ${r.rules.grace} min grace)</span></div>
+          </div>
+          <p style="font-size:12.5px;color:#6b6358;line-height:1.5">${r.fixed ? 'You are on a fixed salary: attendance does not change your pay.' : r.fullPay ? 'Full salary this month: attendance does not change your pay.' : `Each late arrival costs ${r.rules.lateHours} h of pay (${money(r.hourly * r.rules.lateHours)}). Overtime after ${esc(r.rules.end)} pays ${money(r.hourly * r.rules.otMult)} an hour once approved.`}
+          ${S.manualDays ? `<br>Days deducted this month: ${S.manualDays} (− ${money(S.manualDed)})${S.manualReason ? ': ' + esc(S.manualReason) : ''}.` : ''}
+          <br>Monthly salary ${money(r.salary)}. If nothing else changes, this month comes to about <b>${money(r.monthEstimate)}</b>. Final pay is on your payslip.</p>
+          <table class="pt-days"><thead><tr><th>Day</th><th>In</th><th>Out</th><th>Earned</th></tr></thead><tbody>
+          ${r.days.length ? r.days.map(d => `<tr class="${d.today ? 'today' : ''}"><td>${esc(d.nice)}<small><span class="pill ${pillClass(d.status)}">${esc(d.status)}</span></small>${d.note ? `<small>${esc(d.note)}</small>` : ''}</td><td>${d.in || '–'}</td><td>${d.out || '–'}</td><td>${d.pay ? money(d.pay) : '–'}</td></tr>`).join('') : '<tr><td colspan="4">No days yet this month.</td></tr>'}
+          </tbody></table>`;
+        $('ptMonth').addEventListener('change', () => openPortal($('ptMonth').value));
+      }
+    } catch (e) { out.innerHTML = '<div class="result show err"><div class="big">Could not open</div>No connection. Try again.</div>'; }
+    btn.disabled = false; btn.textContent = 'Show my attendance & earnings';
+  }
+  $('ptOpen').addEventListener('click', () => openPortal());
+
+  // ---- my details ----
+  let dtAuth = null;
+  $('dtLoad').addEventListener('click', async () => {
+    const out = $('dtOut'), a = needAuth(out); if (!a) return;
+    const btn = $('dtLoad'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Loading…';
+    try {
+      const r = await post({ action: 'profile', ...a });
+      if (!r.ok) out.innerHTML = `<div class="result show err"><div class="big">Could not load</div>${esc(r.error)}</div>`;
+      else {
+        out.innerHTML = ''; dtAuth = a;
+        $('dtCard').value = r.ghanaCard || ''; $('dtEmName').value = r.emName || ''; $('dtEmRel').value = r.emRel || ''; $('dtEmPhone').value = r.emPhone || '';
+        const b = r.pendingBank || { account: r.account, sortCode: r.sortCode, bank: r.bank };
+        $('dtAcct').value = b.account || ''; $('dtSort').value = b.sortCode || ''; $('dtBank').value = b.bank || '';
+        $('dtPending').textContent = r.pendingBank ? `Your new bank details (requested ${r.pendingBank.requested}) are waiting for management approval. Until then, pay goes to ${r.account ? '••••' + r.account.slice(-4) : 'no account yet'}.` : '';
+        $('dtForm').style.display = 'block'; btn.style.display = 'none';
+      }
+    } catch (e) { out.innerHTML = '<div class="result show err"><div class="big">Could not load</div>No connection. Try again.</div>'; }
+    btn.disabled = false; btn.textContent = 'Load my details';
+  });
+  $('dtSave').addEventListener('click', async () => {
+    const out = $('dtOut');
+    if (!dtAuth) return;
+    const btn = $('dtSave'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Saving…';
+    try {
+      const r = await post({ action: 'saveProfile', ...dtAuth, ghanaCard: $('dtCard').value, emName: $('dtEmName').value, emRel: $('dtEmRel').value, emPhone: $('dtEmPhone').value, account: $('dtAcct').value, sortCode: $('dtSort').value, bank: $('dtBank').value });
+      out.innerHTML = r.ok ? `<div class="result show ok"><div class="big">Saved</div>${esc(r.message)}</div>` : `<div class="result show err"><div class="big">Not saved</div>${esc(r.error)}</div>`;
+      if (r.ok) $('pin').value = '';
+    } catch (e) { out.innerHTML = '<div class="result show err"><div class="big">Not saved</div>No connection. Try again.</div>'; }
+    btn.disabled = false; btn.textContent = 'Save my details';
+  });
+  $('name').addEventListener('change', () => { dtAuth = null; $('dtForm').style.display = 'none'; $('dtLoad').style.display = ''; $('ptOut').innerHTML = ''; $('dtOut').innerHTML = ''; });
 
   // ---- leave ----
   function needAuth(out) {
